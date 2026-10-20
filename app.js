@@ -1737,7 +1737,7 @@
     $('#tEmo').textContent = s.e;
     $('#tTitle').textContent = s.t;
     $('#tText').textContent = s.d;
-    $('#tPrev').style.visibility = tourI ? 'visible' : 'hidden';
+    $('#tPrev').style.display = tourI ? '' : 'none';
     $('#tNext').textContent = last ? '¡Empezar!' : 'Siguiente';
     $('#tSkip').hidden = last;
     $('#tDots').querySelectorAll('i').forEach(function (d, i) { d.classList.toggle('on', i === tourI); });
