@@ -307,7 +307,7 @@
     pwIn.value = ''; nameField.hidden = true; loginBtn.textContent = 'Ingresar';
     renderWelcome();
     show('inicio');
-    if (isNew) openTour();
+    maybeTour();
   }
 
   function logout() {
@@ -1747,6 +1747,12 @@
     renderTour();
     if (tourDlg.showModal) tourDlg.showModal(); else tourDlg.setAttribute('open', '');
   }
+  // Se muestra una sola vez por cuenta (nuevas o que aún no lo han visto)
+  function maybeTour() {
+    if (!S.user || store(userKey('tour'))) return;
+    store(userKey('tour'), true);
+    setTimeout(openTour, 400);
+  }
   function closeTour() {
     if (tourDlg.close) tourDlg.close(); else tourDlg.removeAttribute('open');
   }
@@ -1767,6 +1773,7 @@
       if (store('remembered') === null) store('remembered', [email]); // sesiones de antes de esta función
       renderWelcome();
       show('inicio');
+      maybeTour();
     } else {
       renderLogin();
       show('login');
