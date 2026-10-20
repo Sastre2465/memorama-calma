@@ -307,6 +307,7 @@
     pwIn.value = ''; nameField.hidden = true; loginBtn.textContent = 'Ingresar';
     renderWelcome();
     show('inicio');
+    if (isNew) openTour();
   }
 
   function logout() {
@@ -1718,6 +1719,44 @@
   $('#recoBreathe').addEventListener('click', openBreathe);
   $('#bStart').addEventListener('click', bRun);
   $('#bClose').addEventListener('click', closeBreathe);
+
+  // ---------- Tutorial para nuevos usuarios ----------
+  var TOUR = [
+    { e: '👋', t: 'Te damos la bienvenida', d: 'Synapsis Cognitivo te ayuda a bajar el estrés con pausas cortas de juego. Te mostramos cómo funciona en unos pasos.' },
+    { e: '🌡️', t: 'Dinos cómo te sientes', d: 'En Inicio elige tu nivel de estrés actual. Con eso te recomendamos el juego y la dificultad ideal para relajarte.' },
+    { e: '🃏', t: 'Elige tu juego', d: 'Memorama: voltea cartas y encuentra los pares. Secuencia: observa el patrón y repítelo. Puedes cambiar la dificultad y jugar en Zen (sin reloj) o Reto (contra reloj).' },
+    { e: '🌬️', t: 'Respira cuando lo necesites', d: 'Toca el botón de respiración arriba a la derecha para una pausa guiada de menos de 1 minuto. El botón de bocina activa o quita el sonido.' },
+    { e: '📓', t: 'Para hoy', d: 'Lee la frase y el tip del día, y escribe 3 cosas buenas en tu diario de gratitud. Al terminar cada partida te preguntaremos de nuevo cómo te sientes.' },
+    { e: '🏆', t: 'Mira tu progreso', d: 'En Perfil verás tu racha, logros, récords y calendario. También puedes cambiar el tema (claro u oscuro). Vuelve a ver esta guía con el botón “?”.' }
+  ];
+  var tourDlg = $('#tour'), tourI = 0;
+  TOUR.forEach(function () { $('#tDots').appendChild(document.createElement('i')); });
+  function renderTour() {
+    var s = TOUR[tourI], last = tourI === TOUR.length - 1;
+    $('#tStep').textContent = 'Paso ' + (tourI + 1) + ' de ' + TOUR.length;
+    $('#tEmo').textContent = s.e;
+    $('#tTitle').textContent = s.t;
+    $('#tText').textContent = s.d;
+    $('#tPrev').style.visibility = tourI ? 'visible' : 'hidden';
+    $('#tNext').textContent = last ? '¡Empezar!' : 'Siguiente';
+    $('#tSkip').hidden = last;
+    $('#tDots').querySelectorAll('i').forEach(function (d, i) { d.classList.toggle('on', i === tourI); });
+  }
+  function openTour() {
+    tourI = 0;
+    renderTour();
+    if (tourDlg.showModal) tourDlg.showModal(); else tourDlg.setAttribute('open', '');
+  }
+  function closeTour() {
+    if (tourDlg.close) tourDlg.close(); else tourDlg.removeAttribute('open');
+  }
+  $('#tNext').addEventListener('click', function () {
+    if (tourI === TOUR.length - 1) return closeTour();
+    tourI++; renderTour(); sfx.flip();
+  });
+  $('#tPrev').addEventListener('click', function () { if (tourI) { tourI--; renderTour(); } });
+  $('#tSkip').addEventListener('click', closeTour);
+  $('#tourBtn').addEventListener('click', openTour);
 
   // ---------- Arranque: restaurar sesión ----------
   (function boot() {

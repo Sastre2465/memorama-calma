@@ -461,6 +461,14 @@ dialog h3 { margin: 12px 0 0; font-size: 1.3rem; }
 .circle.big, .circle.big span { transform: scale(1); }
 .b-sub { color: var(--mut); margin: 0 0 16px; }
 
+/* ---------- Tutorial ---------- */
+.tour-emo { font-size: 3rem; line-height: 1; margin-top: 18px; }
+.tour-text { color: var(--mut); line-height: 1.5; min-height: 4.5em; margin: 10px 0 16px; }
+.tour-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 18px; }
+.tour-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); transition: width .25s, background .25s; }
+.tour-dots i.on { width: 22px; border-radius: 9px; background: var(--acc); }
+.tour-skip { display: block; margin: 14px auto 0; }
+
 /* ---------- Responsivo ---------- */
 @media (max-width: 720px) {
   .hero, .reco-grid, .profile-grid { grid-template-columns: 1fr; }

@@ -65,6 +65,9 @@
         <p id="welcomeSub">Tómate unos minutos para ti antes de volver a tus tareas.</p>
       </div>
       <div class="top-actions">
+        <button class="icon-btn" id="tourBtn" title="¿Cómo se usa?" aria-label="Ver tutorial">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6"/><path d="M12 17h.01"/></svg>
+        </button>
         <button class="icon-btn" id="breatheBtn" title="Pausa para respirar" aria-label="Pausa para respirar">
           <svg viewBox="0 0 24 24"><path d="M12 4v7"/><path d="M12 11c-2 0-3 1.5-3 4v3c0 1.5-1 2-2.5 2S4 19 4 16c0-4 2-8 5-8"/><path d="M12 11c2 0 3 1.5 3 4v3c0 1.5 1 2 2.5 2s2.5-1 2.5-4c0-4-2-8-5-8"/></svg>
         </button>
@@ -446,6 +449,20 @@
       <button class="btn" id="bStart">Empezar</button>
       <button class="btn ghost" id="bClose">Cerrar</button>
     </div>
+  </dialog>
+
+  <!-- TUTORIAL (nuevos usuarios) -->
+  <dialog id="tour" aria-labelledby="tTitle">
+    <span class="tag" id="tStep">Paso 1 de 6</span>
+    <div class="tour-emo" id="tEmo" aria-hidden="true">👋</div>
+    <h3 id="tTitle"></h3>
+    <p class="tour-text" id="tText"></p>
+    <div class="tour-dots" id="tDots" aria-hidden="true"></div>
+    <div class="row">
+      <button class="btn ghost" id="tPrev">Atrás</button>
+      <button class="btn" id="tNext">Siguiente</button>
+    </div>
+    <button class="link tour-skip" id="tSkip" type="button">Saltar tutorial</button>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
