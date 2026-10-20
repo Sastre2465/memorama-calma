@@ -1727,7 +1727,8 @@
     { e: '🃏', t: 'Elige tu juego', d: 'Memorama: voltea cartas y encuentra los pares. Secuencia: observa el patrón y repítelo. Puedes cambiar la dificultad y jugar en Zen (sin reloj) o Reto (contra reloj).' },
     { e: '🌬️', t: 'Respira cuando lo necesites', d: 'Toca el botón de respiración arriba a la derecha para una pausa guiada de menos de 1 minuto. El botón de bocina activa o quita el sonido.' },
     { e: '📓', t: 'Para hoy', d: 'Lee la frase y el tip del día, y escribe 3 cosas buenas en tu diario de gratitud. Al terminar cada partida te preguntaremos de nuevo cómo te sientes.' },
-    { e: '🏆', t: 'Mira tu progreso', d: 'En Perfil verás tu racha, logros, récords y calendario. También puedes cambiar el tema (claro u oscuro). Vuelve a ver esta guía con el botón “?”.' }
+    { e: '🏆', t: 'Mira tu progreso', d: 'En Perfil verás tu racha, logros, récords y calendario. También puedes cambiar el tema (claro u oscuro). Vuelve a ver esta guía con el botón “?”.' },
+    { e: '🎮', t: '¡Ahora practica!', d: 'Te vamos a guiar en tu primera partida. Solo sigue las indicaciones y haz clic donde te digamos.' }
   ];
   var tourDlg = $('#tour'), tourI = 0;
   TOUR.forEach(function () { $('#tDots').appendChild(document.createElement('i')); });
@@ -1738,7 +1739,7 @@
     $('#tTitle').textContent = s.t;
     $('#tText').textContent = s.d;
     $('#tPrev').style.display = tourI ? '' : 'none';
-    $('#tNext').textContent = last ? '¡Empezar!' : 'Siguiente';
+    $('#tNext').textContent = last ? '¡A practicar!' : 'Siguiente';
     $('#tSkip').hidden = last;
     $('#tDots').querySelectorAll('i').forEach(function (d, i) { d.classList.toggle('on', i === tourI); });
   }
@@ -1757,12 +1758,90 @@
     if (tourDlg.close) tourDlg.close(); else tourDlg.removeAttribute('open');
   }
   $('#tNext').addEventListener('click', function () {
-    if (tourI === TOUR.length - 1) return closeTour();
+    if (tourI === TOUR.length - 1) { closeTour(); return startCoach(); }
     tourI++; renderTour(); sfx.flip();
   });
   $('#tPrev').addEventListener('click', function () { if (tourI) { tourI--; renderTour(); } });
   $('#tSkip').addEventListener('click', closeTour);
   $('#tourBtn').addEventListener('click', openTour);
+
+  // ---------- Práctica guiada: "haz clic aquí" sobre la app real ----------
+  // el = qué iluminar · on = dónde se espera el clic (por defecto el mismo el)
+  var COACH = [
+    { el: '#stressStart', t: '¿Cómo te sientes ahora?', d: 'Haz clic en tu nivel de estrés.' },
+    { el: '#games', t: 'Elige tu juego', d: 'Haz clic en Memorama o en Secuencia.' },
+    { el: '#levels', t: 'Escoge la dificultad', d: 'Haz clic en Fácil, Medio o Difícil.' },
+    { el: '#startBtn', t: '¡Todo listo!', d: 'Haz clic en Comenzar para jugar.' },
+    { el: '#grid .mcard', on: '#grid', game: 'memorama', t: 'Voltea una carta', d: 'Haz clic en esta carta (o en cualquier otra).' },
+    { el: '#grid .mcard:last-child', on: '#grid', game: 'memorama', t: 'Ahora busca su pareja', d: 'Haz clic en otra carta. Si son iguales, ¡ganas un consejo!' },
+    { el: '#sgrid', game: 'secuencia', t: 'Mira y repite', d: 'Observa qué objetos se iluminan y luego haz clic en ellos en el mismo orden.' }
+  ];
+  var coach = null; // { i, target, raf, lost }
+  var cShade = document.createElement('div'), cBubble = document.createElement('div');
+  cShade.className = 'coach-spot'; cBubble.className = 'coach-bubble';
+  cBubble.setAttribute('role', 'status');
+  cBubble.innerHTML = '<span class="coach-step"></span><b></b><p></p><div class="coach-hand" aria-hidden="true">👆 Haz clic aquí</div><button type="button" class="link">Saltar</button>';
+  cShade.hidden = cBubble.hidden = true;
+  document.body.appendChild(cShade); document.body.appendChild(cBubble);
+  cBubble.querySelector('button').addEventListener('click', function () { endCoach(false); });
+
+  function coachSteps() { return COACH.filter(function (s) { return !s.game || s.game === S.game; }); }
+  function startCoach() {
+    coach = { i: -1 };
+    cShade.hidden = cBubble.hidden = false;
+    nextCoach();
+    coachLoop();
+  }
+  function nextCoach() {
+    var steps = coachSteps();
+    if (coach.zone) coach.zone.removeEventListener('click', onCoachClick);
+    coach.i++;
+    if (coach.i >= steps.length) return endCoach(true);
+    var s = steps[coach.i];
+    coach.target = $(s.el); coach.zone = $(s.on || s.el); coach.lost = 0;
+    coach.zone.addEventListener('click', onCoachClick);
+    cBubble.querySelector('.coach-step').textContent = 'Práctica ' + (coach.i + 1) + ' de ' + steps.length;
+    cBubble.querySelector('b').textContent = s.t;
+    cBubble.querySelector('p').textContent = s.d;
+    bump(cBubble);
+    setTimeout(function () {
+      if (coach && coach.target) coach.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 250);
+  }
+  function onCoachClick(e) {
+    // Solo cuenta si tocó un botón dentro de la zona iluminada
+    if (!e.target.closest('button, [role="radio"]')) return;
+    setTimeout(function () { if (coach) nextCoach(); }, 350);
+  }
+  function endCoach(done) {
+    if (!coach) return;
+    if (coach.zone) coach.zone.removeEventListener('click', onCoachClick);
+    cancelAnimationFrame(coach.raf);
+    coach = null;
+    cShade.hidden = cBubble.hidden = true;
+    if (done) toast({ e: '🎉', t: '¡Así se juega! Ya sabes usar Synapsis. Vuelve a ver la guía con el botón “?”.' });
+  }
+  // Sigue al elemento mientras haces scroll; si desaparece (saliste del juego), termina
+  function coachLoop() {
+    if (!coach) return;
+    var r = coach.target.getBoundingClientRect();
+    if (!r.width) {
+      if (++coach.lost > 90) return endCoach(false);
+    } else {
+      coach.lost = 0;
+      var pad = 8;
+      cShade.style.cssText = 'top:' + (r.top - pad) + 'px;left:' + (r.left - pad) + 'px;width:' + (r.width + pad * 2) + 'px;height:' + (r.height + pad * 2) + 'px';
+      var bw = cBubble.offsetWidth, bh = cBubble.offsetHeight, vh = window.innerHeight;
+      var below = r.bottom + pad + 14 + bh < vh || r.top < bh + 30;
+      var top = below ? Math.min(r.bottom + pad + 14, vh - bh - 12) : r.top - pad - 14 - bh;
+      var left = Math.max(12, Math.min(r.left + r.width / 2 - bw / 2, window.innerWidth - bw - 12));
+      cBubble.style.top = Math.max(12, top) + 'px';
+      cBubble.style.left = left + 'px';
+      var hand = below ? '👆 Haz clic aquí' : '👇 Haz clic aquí', hEl = cBubble.querySelector('.coach-hand');
+      if (hEl.textContent !== hand) hEl.textContent = hand;
+    }
+    coach.raf = requestAnimationFrame(coachLoop);
+  }
 
   // ---------- Arranque: restaurar sesión ----------
   (function boot() {

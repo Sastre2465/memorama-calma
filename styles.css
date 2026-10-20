@@ -469,6 +469,32 @@ dialog h3 { margin: 12px 0 0; font-size: 1.3rem; }
 .tour-dots i.on { width: 22px; border-radius: 9px; background: var(--acc); }
 .tour-skip { display: block; margin: 14px auto 0; }
 
+/* Práctica guiada: foco sobre el elemento real + globo "haz clic aquí" */
+.coach-spot {
+  position: fixed; z-index: 90; border-radius: 18px; pointer-events: none;
+  box-shadow: 0 0 0 4px var(--acc), 0 0 0 9999px rgba(14, 22, 36, .55);
+  animation: coachPulse 1.4s ease-in-out infinite;
+}
+@keyframes coachPulse {
+  0%, 100% { box-shadow: 0 0 0 4px var(--acc), 0 0 0 9999px rgba(14, 22, 36, .55); }
+  50% { box-shadow: 0 0 0 9px var(--acc), 0 0 0 9999px rgba(14, 22, 36, .55); }
+}
+.coach-bubble {
+  position: fixed; z-index: 91; width: min(320px, calc(100vw - 24px)); padding: 16px 18px 12px;
+  background: var(--surf); color: var(--ink); border: 1px solid var(--line); border-radius: 18px;
+  box-shadow: var(--shadow); text-align: center;
+}
+.coach-bubble[hidden], .coach-spot[hidden] { display: none; }
+.coach-step { font-size: .75rem; font-weight: 600; color: var(--acc); }
+.coach-bubble b { display: block; font-size: 1.05rem; margin-top: 4px; }
+.coach-bubble p { margin: 6px 0 10px; color: var(--mut); font-size: .92rem; line-height: 1.4; }
+.coach-hand {
+  display: inline-block; padding: 8px 16px; border-radius: 99px; background: var(--acc); color: var(--on);
+  font-weight: 700; animation: coachTap 1s ease-in-out infinite;
+}
+@keyframes coachTap { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.coach-bubble .link { display: block; margin: 10px auto 0; color: var(--mut); }
+
 /* ---------- Responsivo ---------- */
 @media (max-width: 720px) {
   .hero, .reco-grid, .profile-grid { grid-template-columns: 1fr; }
